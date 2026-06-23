@@ -1,12 +1,17 @@
+import os
 import time
 import sys
 import random
+from dotenv import load_dotenv
+
+# Load configurations from .env file if it exists
+load_dotenv()
 
 # Attempt to load Raspberry Pi GPIO libraries
 # If running on Windows, it will fallback to Simulation Mode
 IS_RASPBERRY_PI = False
 try:
-    from gpiozero import LED, Button
+    from gpiozero import LED
     IS_RASPBERRY_PI = True
 except (ImportError, ModuleNotFoundError):
     # Mocking GPIO classes for local development/testing on Windows
@@ -29,18 +34,21 @@ except (ImportError, ModuleNotFoundError):
     LED = MockGPIO
     print("[SYSTEM] Running in WINDOWS SIMULATION MODE (No Pi hardware detected).")
 
-# Hardware Pin Assignments (adjust to match your Pi board)
-SHIELD_LED_PIN = 17       # Pin for Sentinel Shield Active indicator
+# Retrieve configuration parameters from environment variables
+SHIELD_LED_PIN = int(os.getenv("SHIELD_LED_PIN", 17))
+TELEMETRY_INTERVAL = float(os.getenv("TELEMETRY_INTERVAL", 2.0))
+DEFLECTION_ALERT_THRESHOLD = int(os.getenv("DEFLECTION_ALERT_THRESHOLD", 85))
 
 def init_hardware():
     """Initializes LEDs and sensors."""
-    print(f"[AMULET] Initializing pin controls...")
+    print(f"[AMULET] Initializing pin controls (Target Pin: GPIO {SHIELD_LED_PIN})...")
     shield_led = LED(SHIELD_LED_PIN)
     return shield_led
 
 def run_telemetry_loop(shield_led):
     """Simulates active telemetry logging and Pi state updates."""
     print("\n[AMULET] Active Threat Deflection Loop started.")
+    print(f"Settings: Interval={TELEMETRY_INTERVAL}s | Alert Threshold={DEFLECTION_ALERT_THRESHOLD}%")
     print("Press Ctrl+C to stop the script.\n")
     
     shield_led.blink(on_time=0.2, off_time=0.8) # Blink pattern to show standby/scanning
@@ -55,13 +63,13 @@ def run_telemetry_loop(shield_led):
             print(f"[TELEMETRY] Frequency: {freq} Hz | Shield Deflection: {deflection}% | Target: STABLE")
             
             # Simple simulation: if deflection gets critically low, pulse the LED faster
-            if deflection < 85:
-                print("[ALERT] Deflection below optimal levels! Overclocking LED warning.")
+            if deflection < DEFLECTION_ALERT_THRESHOLD:
+                print(f"[ALERT] Deflection below {DEFLECTION_ALERT_THRESHOLD}%! Overclocking LED warning.")
                 shield_led.on()
                 time.sleep(0.5)
                 shield_led.off()
             
-            time.sleep(2.0)
+            time.sleep(TELEMETRY_INTERVAL)
             
     except KeyboardInterrupt:
         print("\n[AMULET] Stopping telemetry loop...")

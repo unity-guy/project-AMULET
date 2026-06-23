@@ -1,8 +1,9 @@
 # project-AMULET Python Dependencies
 # Run: pip install -r requirements.txt
 
-# Raspberry Pi high-level GPIO wrapper (for hardware controls)
-# Note: On non-Pi systems (like Windows), this will fail or require mock interfaces.
-# The script automatically handles this by running in Simulation Mode if missing.
+# Raspberry Pi high-level GPIO wrapper
 gpiozero==2.0.1
 colorama==0.4.6
+
+# Environment configuration
+python-dotenv==1.0.1
