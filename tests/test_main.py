@@ -32,4 +32,5 @@ def test_init_hardware():
     """Verify that hardware initialization hooks up the LED controller."""
     led = main.init_hardware()
     assert led is not None
-    assert led.pin == main.SHIELD_LED_PIN
+    pin_num = led.pin.number if hasattr(led.pin, 'number') else led.pin
+    assert pin_num == main.SHIELD_LED_PIN
