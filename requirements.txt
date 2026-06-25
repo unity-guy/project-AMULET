@@ -7,3 +7,6 @@ colorama==0.4.6
 
 # Environment configuration
 python-dotenv==1.0.1
+
+# Testing framework
+pytest==8.2.2
